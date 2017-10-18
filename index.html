@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Giftastic!</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/flatly/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+</head>
+
+<style>
+
+.jumbotron{disply:flex;
+align-content:center;
+justify-items:center;
+align-items:center;
+padding-left: 40px;
+padding-right: 40px;
+}
+
+</style>
+
+<body>
+
+
+<div class="jumbotron">
+   
+   
+   <div id="newButtons"></div>
+
+    <h1 style =" color:black;">Giftastic!</h1>
+   
+    <form>
+        <input type= "text" class= "inputText">
+        <h3>Add an animal..</h3>
+        <input type="submit" class="add-gify" value="Search">
+    </form> 
+
+      <br>
+      <br>
+
+    <div id= "gif-holder"></div>  
+  
+</div>
+
+  
+<script>
+
+var zooArray = [ "dog", "cat", "rabbit" , "hamster", "skunk", "goldfish", "bird", "ferret", "turtle", "sugar glider", "chinchilla", "hedgehog", "hermit crab", "gerbil", "pygmy goat", "chicken", "capybara", "teacup pig", "serval", "salamander", "frog" ];
+   
+function displayAnimal (){
+
+var animal = $(this).attr("data-name");
+  
+var queryURL = "http://api.giphy.com/v1/gifs/search?q=" +
+        animal + "&api_key=dc6zaTOxFJmzC&limit=10";
+         
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+
+        }).done(function(response) {
+          $("#gif-holder").empty();
+
+          for (let i = 0; i < response.data.length; i++){
+
+          var animalDiv = $('<div class="animalDiv">');
+
+          var rating = response.data[i].rating; 
+
+          var p = $("<p>").text("Rating : " + rating);
+
+          var animate = response.data[i].images.fixed_height.url;
+
+          var still = response.data[i].images.fixed_height_still.url;
+          
+          var img = $('<img class="imageGyphy">');
+
+           img.attr("src", still );
+           img.attr("data-still", still);
+           img.attr("data-animate", animate);
+           img.attr("data-state" , "still");
+
+           animalDiv.append(img);
+
+           p.appendTo(animalDiv);
+
+           $("#gif-holder").prepend(animalDiv);
+         }
+
+        });
+
+      }
+     
+
+        $("#gif-holder").on("click" ,".imageGyphy", function(){
+
+          var state = $(this).attr("data-state");
+          
+          if (state == "still"){
+            $(this).attr("src" , $(this).data("animate"));
+             $(this).attr("data-state" , "animate");}
+
+          else { 
+              $(this).attr("src" , $(this).data("still"));
+             $(this).attr("data-state" , "still");
+          }
+
+        });
+    
+
+   function renderButtons() {
+        
+        $("#newButtons").empty();
+
+        for (var i = 0; i < zooArray.length; i++) {
+
+          var a = $("<button>");
+
+          a.addClass("zoo")
+
+          a.attr("data-name" , zooArray[i]);
+
+          a.text(zooArray[i]);
+          
+          $("#newButtons").append(a);
+      }    
+
+    };
+
+      $(".add-gify").on("click" , function(event){
+          event.preventDefault();
+
+      var zoo = $(".inputText").val().trim();
+
+      zooArray.push(zoo);
+
+       renderButtons();
+
+     }); 
+
+      $(document).on("click" , ".zoo" , displayAnimal);
+
+      renderButtons();
+
+
+</script>
+
+</body>
+
+
+</html>
